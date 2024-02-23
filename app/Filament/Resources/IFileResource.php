@@ -2,22 +2,23 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\FolderResource\Pages;
-use App\Filament\Resources\FolderResource\RelationManagers;
-use App\Models\Folder;
+use App\Filament\Resources\IFileResource\Pages;
+use App\Filament\Resources\IFileResource\RelationManagers;
+use App\Models\IFile;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class FolderResource extends Resource
+class IFileResource extends Resource
 {
-    protected static ?string $model = Folder::class;
+    protected static ?string $model = IFile::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-folder';
 
     public static function form(Form $form): Form
     {
@@ -26,8 +27,13 @@ class FolderResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('parent')
-                    ->maxLength(255),
+                Forms\Components\FileUpload::make('file')
+                    ->label('Select File')
+                    // ->acceptedFileTypes(['*'])
+                    ->visibleOn('create.file')
+                    ->openable()
+                    ->downloadable()
+                    ->required()->columnSpanFull(),
             ]);
     }
 
@@ -36,8 +42,12 @@ class FolderResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->icon(fn (Model $f) => $f->getIcon())
                     ->searchable(),
-                Tables\Columns\TextColumn::make('parent')
+                Tables\Columns\TextColumn::make('createdBy.name')
+                    ->label('Propriétaire')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('mime_type')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -65,7 +75,22 @@ class FolderResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageFolders::route('/'),
+            'index' => Pages\ManageIFiles::route('/'),
         ];
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Mes Archives';
+    }
+
+    public static function getLabel(): ?string
+    {
+        return 'Fichier';
+    }
+
+    public static function getPluralLabel(): ?string
+    {
+        return 'Fichiers';
     }
 }
