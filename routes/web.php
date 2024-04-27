@@ -18,6 +18,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/testify', function () {
+    Storage::disk('s3')->put('test1.txt', 'test again');
+
+    // If you didn't setup S3 as default disk in .env file
+    $contents = Storage::disk('s3')->get('test1.txt');
+
+    var_dump( $contents ); // This will show "test again text"
+});
+
 Route::get('/oldboard', function () {
     return view('oldboard');
 })->middleware(['auth', 'verified'])->name('oldboard');
