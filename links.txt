@@ -1,0 +1,8 @@
+https://stackoverflow.com/questions/71080354/getting-the-bucket-does-not-allow-acls-error
+https://laravel-news.com/using-aws-s3-for-laravel-storage
+
+##Less
+https://medium.com/@demian.kostelny/aws-s3-and-laravel-filesystem-16ea5a867d41
+
+git config --local user.email "mahmoudnjoya99@gmail.com"
+git config --global user.name "Mahmoud"
