@@ -7,6 +7,7 @@ use App\Models\File;
 use App\Models\Folder;
 use App\Models\IFIle;
 use Filament\Actions;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\Pages\ManageRecords;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -23,7 +24,9 @@ class ManageIFiles extends ManageRecords
                 ->modalHeading('Create folder')
                 ->label('Create folder')->using(function (array $data, string $model): Model {
 
-                    $folder = new Folder();
+                    $folder = new Folder([
+                        'parent' => $this->getOrCreateParentFolder()->id
+                    ]);
 
                     $ifile = new IFIle([
                         ...$data,
@@ -48,12 +51,12 @@ class ManageIFiles extends ManageRecords
                     $file = new File([
                         'url' => $data['file'],
                         'size' => $size,
-                        'folder' => IFIle::whereCreatedBy(auth()->id())->where('fileable_type', 'App\Models\Folder')->first()->id,
+                        'folder' => $this->getOrCreateParentFolder()->id,
                     ]);
 
 
                     // dd($size, $mimeType/* , $file */);
-
+        
                     $ifile = new IFIle([
                         ...$data,
                         'created_by' => auth()->id(),
@@ -67,5 +70,28 @@ class ManageIFiles extends ManageRecords
                     return $ifile;
                 }),
         ];
+    }
+
+    protected function getOrCreateParentFolder(): Folder
+    {
+        $parent_ifile = IFIle::whereHasMorph('fileable', [Folder::class], function (Builder $q) {
+            $q->whereNull('parent');
+        })->whereCreatedBy(auth()->id())->first();
+
+        if (empty($parent_ifile)) {
+            $p = new Folder();
+
+            $parent_ifile = new IFIle([
+                'name' => auth()->id() . '__ROOT__',
+                'created_by' => auth()->id(),
+                'mime_type' => 'application/vnd.garchiv.folder',
+            ]);
+
+            $p->save();
+
+            $p->file()->save($parent_ifile);
+        }
+
+        return $parent_ifile->fileable;
     }
 }
