@@ -3,7 +3,7 @@
 namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use App\Models\IFIle;
+use App\Models\IFile;
 
 trait Fileable
 {
@@ -12,7 +12,7 @@ trait Fileable
      */
     public function file(): MorphOne
     {
-        return $this->morphOne(IFIle::class, 'fileable');
+        return $this->morphOne(IFile::class, 'fileable');
     }
 
     public static function boot()

@@ -5,7 +5,7 @@ namespace App\Filament\Resources\IFileResource\Pages;
 use App\Filament\Resources\IFileResource;
 use App\Models\File;
 use App\Models\Folder;
-use App\Models\IFIle;
+use App\Models\IFile;
 use Filament\Actions;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\Pages\ManageRecords;
@@ -24,11 +24,13 @@ class ManageIFiles extends ManageRecords
                 ->modalHeading('Create folder')
                 ->label('Create folder')->using(function (array $data, string $model): Model {
 
+                    $root = $this->getRootFolderOrCreate();
+
                     $folder = new Folder([
-                        'parent' => $this->getOrCreateParentFolder()->id
+                        'parent' => $root->id,
                     ]);
 
-                    $ifile = new IFIle([
+                    $ifile = new IFile([
                         ...$data,
                         'created_by' => auth()->id(),
                         'mime_type' => 'application/vnd.garchiv.folder',
@@ -42,22 +44,23 @@ class ManageIFiles extends ManageRecords
                 }),
             Actions\CreateAction::make("create.file")
                 ->modalHeading('Create file')
-                ->label('Create file')->using(function (array $data, string $model): Model {
-                    // $f = Storage::disk('public')->response($data['file']);
-                    $mimeType = Storage::disk('public')->mimeType($data['file']);
-                    $size = Storage::disk('public')->size($data['file']);
+                ->label('Create file')->using(function (array $data, string $model) {
+                    // dd($data);
+                    // $f = Storage::disk('s3')->response($data['file']);
+                    $mimeType = Storage::disk('s3')->mimeType($data['file']);
+                    $size = Storage::disk('s3')->size($data['file']);
 
+                    $root = $this->getRootFolderOrCreate();
 
                     $file = new File([
                         'url' => $data['file'],
                         'size' => $size,
-                        'folder' => $this->getOrCreateParentFolder()->id,
+                        'folder' => $root->id,
                     ]);
-
 
                     // dd($size, $mimeType/* , $file */);
         
-                    $ifile = new IFIle([
+                    $ifile = new IFile([
                         ...$data,
                         'created_by' => auth()->id(),
                         'mime_type' => $mimeType,
@@ -72,26 +75,31 @@ class ManageIFiles extends ManageRecords
         ];
     }
 
-    protected function getOrCreateParentFolder(): Folder
+    protected function getRootFolderOrCreate(): Folder
     {
-        $parent_ifile = IFIle::whereHasMorph('fileable', [Folder::class], function (Builder $q) {
-            $q->whereNull('parent');
+        $root_ifile = IFile::whereHasMorph('fileable', [Folder::class], function ($query, $type) {
+            if ($type === Folder::class) {
+                $query->where('parent', null);
+            }
         })->whereCreatedBy(auth()->id())->first();
 
-        if (empty($parent_ifile)) {
-            $p = new Folder();
+        $parent = Folder::Where('id', $root_ifile->fileable->getKey())->first();
 
-            $parent_ifile = new IFIle([
+        // dd($parent);
+
+        if (empty($parent)) {
+            $parent = new Folder();
+            $root_ifile = new IFile([
                 'name' => auth()->id() . '__ROOT__',
                 'created_by' => auth()->id(),
                 'mime_type' => 'application/vnd.garchiv.folder',
             ]);
 
-            $p->save();
+            $parent->save();
 
-            $p->file()->save($parent_ifile);
+            $parent->file()->save($root_ifile);
         }
 
-        return $parent_ifile->fileable;
+        return $parent;
     }
 }
