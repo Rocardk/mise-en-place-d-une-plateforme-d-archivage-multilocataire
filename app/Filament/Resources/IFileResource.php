@@ -6,6 +6,7 @@ use App\Filament\Resources\IFileResource\Pages;
 use App\Filament\Resources\IFileResource\RelationManagers;
 use App\Models\IFile;
 use App\Models\File;
+use App\Models\Folder;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -31,7 +32,7 @@ class IFileResource extends Resource
                     ->maxLength(255),
                 Forms\Components\FileUpload::make('file')
                     ->label('Select File')
-                    ->disk('s3')
+                    // ->disk('s3')
                     // ->directory('form-attachments')
                     // ->visibility('private')
                     // ->acceptedFileTypes(['*'])
@@ -45,9 +46,19 @@ class IFileResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(
+                fn(Builder $query) => $query->whereHasMorph(
+                    'fileable',
+                    [Folder::class, File::class],
+                    function (Builder $query, $type) {
+                        if ($type === Folder::class)
+                            $query->whereNotNull('parent');
+                    }
+                )
+            )
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->icon(fn (Model $f) => $f->getIcon())
+                    ->icon(fn(Model $f) => $f->getIcon())
                     ->searchable(),
                 Tables\Columns\TextColumn::make('createdBy.name')
                     ->label('Propriétaire')
@@ -56,10 +67,12 @@ class IFileResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('fileable.url')
                     ->icon('heroicon-m-arrow-down-tray')
-                    ->formatStateUsing(fn (string $state): string => 'Download')
+                    ->formatStateUsing(fn(string $state): string => 'Download')
                     ->url(function (IFile $if): string {
-                        if(isset($if->fileable?->url)) return Storage::disk('s3')->url('/'.$if->fileable?->url);
-                        else return "#";
+                        if (isset($if->fileable?->url))
+                            return Storage::/* disk('s3')-> */ url('/' . $if->fileable?->url);
+                        else
+                            return "#";
                     })
                     ->openUrlInNewTab(),
                 Tables\Columns\TextColumn::make('created_at')
