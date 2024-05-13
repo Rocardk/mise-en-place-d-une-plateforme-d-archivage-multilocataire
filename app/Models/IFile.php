@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Model;
+use Wallo\FilamentCompanies\FilamentCompanies;
 
 class IFile extends Model
 {
@@ -42,5 +43,13 @@ class IFile extends Model
             'application/pdf' => 'heroicon-m-document',
             default => 'heroicon-m-question-mark-circle',
         };
+    }
+
+    /**
+     * Get the company that the IFile belongs to.
+     */
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(FilamentCompanies::companyModel());
     }
 }

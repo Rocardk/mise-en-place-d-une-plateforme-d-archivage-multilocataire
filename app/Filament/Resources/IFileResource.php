@@ -133,11 +133,11 @@ class IFileResource extends Resource
             }
         })->whereCreatedBy(auth()->id())->first();
 
-        $parent = Folder::Where('id', $root_ifile->fileable->getKey())->first();
+        // $parent = Folder::Where('id', $root_ifile->fileable->getKey())->first();
 
         // dd($parent);
 
-        if (empty($parent)) {
+        if (empty($root_ifile)) {
             $parent = new Folder();
             $root_ifile = new IFile([
                 'name' => auth()->id() . '__ROOT__',
@@ -150,6 +150,6 @@ class IFileResource extends Resource
             $parent->file()->save($root_ifile);
         }
 
-        return $parent;
+        return $root_ifile->fileable;
     }
 }
