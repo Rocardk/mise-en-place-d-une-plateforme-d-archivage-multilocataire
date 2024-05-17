@@ -3,6 +3,7 @@
 namespace App\Filament\Pages\Auth;
 
 use App\Models\Company;
+use Carbon\Carbon;
 use Filament\Pages\Auth\Register as BaseRegister;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
@@ -87,6 +88,10 @@ class CompanyRegister extends BaseRegister
             $this->callHook('beforeRegister');
 
             $user = $this->handleRegistration($data);
+
+            $user->email_verified_at = Carbon::now();
+
+            $user->save();
 
             $this->form->model($user)->saveRelationships();
 

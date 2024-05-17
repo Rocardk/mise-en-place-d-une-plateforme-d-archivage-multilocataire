@@ -14,6 +14,7 @@ class ManageUsers extends ManageRecords
     {
         return [
             Actions\CreateAction::make(),
+            // \Tapp\FilamentInvite\Actions\InviteAction::make(),
         ];
     }
 }

@@ -12,12 +12,13 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
     public static function form(Form $form): Form
     {
@@ -41,7 +42,10 @@ class UserResource extends Resource
                         'admin' => 'Administrateur',
                     ])
                     ->default('member')
+                    ->hidden(!auth()->user()->isAdmin())
                     ->required(),
+                Forms\Components\Hidden::make('password')
+                    ->default(Str::random(25)),
             ]);
     }
 
@@ -70,6 +74,7 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
+                \Tapp\FilamentInvite\Tables\InviteAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
