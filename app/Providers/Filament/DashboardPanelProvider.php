@@ -17,6 +17,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\Pages\Auth\CompanyRegister;
 
 class DashboardPanelProvider extends PanelProvider
 {
@@ -27,7 +28,7 @@ class DashboardPanelProvider extends PanelProvider
             ->id('dashboard')
             ->path('dashboard')
             ->login()
-            ->registration()
+            ->registration(CompanyRegister::class)
             ->colors([
                 'primary' => Color::Amber,
             ])

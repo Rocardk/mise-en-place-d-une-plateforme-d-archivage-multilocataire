@@ -16,7 +16,8 @@ class IFile extends Model
     protected $fillable = [
         'name',
         'mime_type',
-        'created_by'
+        'created_by',
+        'company_id'
     ];
 
     /**
@@ -35,6 +36,14 @@ class IFile extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * Get the company of ifile.
+     */
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
     public function getIcon()
     {
         return match ($this->mime_type) {
@@ -42,5 +51,12 @@ class IFile extends Model
             'application/pdf' => 'heroicon-m-document',
             default => 'heroicon-m-question-mark-circle',
         };
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (IFile $iFile) {
+            $iFile->company_id = auth()->user()->company_id;
+        });
     }
 }

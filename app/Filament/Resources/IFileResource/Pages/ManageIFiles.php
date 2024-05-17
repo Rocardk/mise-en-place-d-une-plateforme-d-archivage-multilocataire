@@ -83,7 +83,7 @@ class ManageIFiles extends ManageRecords
             }
         })->whereCreatedBy(auth()->id())->first();
 
-        $parent = Folder::Where('id', $root_ifile->fileable->getKey())->first();
+        $parent = Folder::Where('id', $root_ifile?->fileable->getKey())->first();
 
         // dd($parent);
 
