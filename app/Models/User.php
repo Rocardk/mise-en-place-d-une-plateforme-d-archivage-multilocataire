@@ -24,6 +24,8 @@ class User extends Authenticatable
         'password',
         'company_id',
         'role',
+        'askyourpdf_last_api_call',
+        'askyourpdf_calls_number'
     ];
 
     /**

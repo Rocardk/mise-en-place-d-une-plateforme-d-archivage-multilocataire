@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\IFile;
 use App\Models\File;
 use App\Models\Folder;
+use App\Services\AskYourPDFService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Actions;
@@ -91,11 +92,11 @@ class ViewFolder extends Page implements HasForms, HasTable
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
-            ->bulkActions([
+            /* ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]) */ ;
     }
 
     public static function getNavigationLabel(): string
@@ -169,7 +170,7 @@ class ViewFolder extends Page implements HasForms, HasTable
                     ]);
 
                     // dd($size, $mimeType/* , $file */);
-        
+
                     $ifile = new IFile([
                         ...$data,
                         'created_by' => auth()->id(),

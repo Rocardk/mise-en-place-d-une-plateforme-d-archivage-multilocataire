@@ -95,11 +95,11 @@ class IFileResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
-            ->bulkActions([
+            /* ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]) */ ;
     }
 
     public static function getPages(): array
@@ -151,5 +151,12 @@ class IFileResource extends Resource
         }
 
         return $parent;
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            \App\Filament\Resources\IFileResource\Widgets\DocumentChat::class,
+        ];
     }
 }

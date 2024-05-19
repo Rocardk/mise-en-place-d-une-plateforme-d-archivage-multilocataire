@@ -6,6 +6,7 @@ use App\Filament\Resources\IFileResource;
 use App\Models\File;
 use App\Models\Folder;
 use App\Models\IFile;
+use App\Services\AskYourPDFService;
 use Filament\Actions;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\Pages\ManageRecords;
@@ -59,7 +60,7 @@ class ManageIFiles extends ManageRecords
                     ]);
 
                     // dd($size, $mimeType/* , $file */);
-        
+
                     $ifile = new IFile([
                         ...$data,
                         'created_by' => auth()->id(),
@@ -102,4 +103,12 @@ class ManageIFiles extends ManageRecords
 
         return $parent;
     }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            \App\Filament\Resources\IFileResource\Widgets\DocumentChat::class,
+        ];
+    }
+
 }

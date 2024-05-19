@@ -14,6 +14,8 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->date('askyourpdf_last_api_call')->nullable();
+            $table->tinyInteger('askyourpdf_calls_number')->default(0);
             $table->unsignedBigInteger('company_id');
             $table->foreign('company_id')->references('id')->on('companies');
             $table->enum('role', ['admin', 'member'])->default('member');

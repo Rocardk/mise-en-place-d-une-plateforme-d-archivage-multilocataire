@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use App\Services\AskYourPDFService;
 
 class IFile extends Model
 {
@@ -53,10 +55,53 @@ class IFile extends Model
         };
     }
 
+    /**
+     * The "booted" method of the model.
+     */
     protected static function booted(): void
     {
         static::creating(function (IFile $iFile) {
             $iFile->company_id = auth()->user()->company_id;
         });
+
+        static::created(function (IFile $ifile) {
+
+            // dd($ifile);
+            if (!empty($ifile?->fileable?->url)) {
+                $mimeType = Storage::disk('public')->mimeType($ifile?->fileable?->url);
+
+                if (
+                    $ifile->fileable_type == 'App\Models\File' &&
+                    AskYourPDFService::isCompatible($mimeType)
+                ) {
+
+                    // Get the content of the file
+                    $fileContent = Storage::disk('public')->get($ifile->fileable->url);
+                    // Get the name of the file
+                    $fileName = basename($ifile->fileable->url);
+                    $askYourPDFService = new AskYourPDFService();
+                    $result = $askYourPDFService->uploadPDF($fileContent, $fileName);
+                    // dd($result, $fileName, $fileContent);
+                    $ifile->fileable->askyourpdf_id = $result->json()['docId'];
+                    $ifile->fileable->save();
+                    // dd($result);
+                }
+            }
+
+        });
+
+        static::deleting(function (IFile $ifile) {
+            $ifile->fileable->delete();
+        });
     }
+
+    /* public function delete()
+    {
+        $res = parent::delete();
+
+        if ($res == true) {
+            $this->fileable->delete();
+        }
+    } */
+
 }
