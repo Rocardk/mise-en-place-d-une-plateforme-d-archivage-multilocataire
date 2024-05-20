@@ -82,7 +82,7 @@ class ManageIFiles extends ManageRecords
             if ($type === Folder::class) {
                 $query->where('parent', null);
             }
-        })->whereCreatedBy(auth()->id())->first();
+        })->whereCompanyId(auth()->user()->company_id)->first();
 
         $parent = Folder::Where('id', $root_ifile?->fileable->getKey())->first();
 

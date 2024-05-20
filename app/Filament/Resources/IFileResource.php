@@ -66,6 +66,7 @@ class IFileResource extends Resource
                     ->label('Propriétaire')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('mime_type')
+                    ->label('Type')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -131,7 +132,7 @@ class IFileResource extends Resource
             if ($type === Folder::class) {
                 $query->where('parent', null);
             }
-        })->whereCreatedBy(auth()->id())->first();
+        })->whereCompanyId(auth()->user()->company_id)->first();
 
         $parent = Folder::Where('id', $root_ifile?->fileable->getKey())->first();
 
