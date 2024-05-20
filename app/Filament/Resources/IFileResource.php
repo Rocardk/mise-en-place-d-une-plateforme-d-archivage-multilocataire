@@ -140,7 +140,7 @@ class IFileResource extends Resource
         if (empty($parent)) {
             $parent = new Folder();
             $root_ifile = new IFile([
-                'name' => auth()->id() . '__ROOT__',
+                'name' => auth()->user()->company_id . '__ROOT__',
                 'created_by' => auth()->id(),
                 'mime_type' => 'application/vnd.garchiv.folder',
             ]);

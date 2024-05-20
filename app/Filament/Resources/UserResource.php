@@ -52,6 +52,12 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(
+                fn(Builder $query) => $query->where(
+                    'company_id',
+                    auth()->user()->company_id
+                )
+            )
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),

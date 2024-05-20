@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use App\Services\AskYourPDFService;
+use Illuminate\Database\Eloquent\Builder;
 
 class IFile extends Model
 {
@@ -92,6 +93,16 @@ class IFile extends Model
 
         static::deleting(function (IFile $ifile) {
             $ifile->fileable->delete();
+        });
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        self::addGlobalScope(function (Builder $builder) {
+            if (auth()->check())
+                $builder->where('company_id', auth()->user()->company_id);
         });
     }
 
