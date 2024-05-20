@@ -47,8 +47,8 @@ class ManageIFiles extends ManageRecords
                 ->label('Create file')->using(function (array $data, string $model) {
                     // dd($data);
                     // $f = Storage::disk('s3')->response($data['file']);
-                    $mimeType = Storage::/* disk('s3')-> */ mimeType($data['file']);
-                    $size = Storage::/* disk('s3')-> */ size($data['file']);
+                    $mimeType = Storage::disk('public')->mimeType($data['file']);
+                    $size = Storage::disk('public')->size($data['file']);
 
                     $root = $this->getRootFolderOrCreate();
 

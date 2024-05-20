@@ -45,14 +45,16 @@ class IFileResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $root = static::getRootFolderOrCreate();
+
         return $table
             ->modifyQueryUsing(
                 fn(Builder $query) => $query->whereHasMorph(
                     'fileable',
                     [Folder::class, File::class],
-                    function (Builder $query, $type) {
-                        if ($type === Folder::class)
-                            $query->whereNotNull('parent');
+                    fn(Builder $query, $type) => match ($type) {
+                        Folder::class => $query->whereParent($root->id),
+                        File::class => $query->whereFolder($root->id),
                     }
                 )
             )
@@ -65,16 +67,6 @@ class IFileResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('mime_type')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('fileable.url')
-                    ->icon('heroicon-m-arrow-down-tray')
-                    ->formatStateUsing(fn(string $state): string => 'Download')
-                    ->url(function (IFile $if): string {
-                        if (isset($if->fileable?->url))
-                            return Storage::/* disk('s3')-> */ url('/' . $if->fileable?->url);
-                        else
-                            return "#";
-                    })
-                    ->openUrlInNewTab(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -88,6 +80,18 @@ class IFileResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('Download')
+                    ->link()
+                    ->icon('heroicon-m-arrow-down-tray')
+                    ->url(function (IFile $if): string {
+                        return Storage::disk('public')->url('/' . $if->fileable?->url);
+                    })->visible(fn(IFile $if) => isset($if->fileable?->url))
+                    ->openUrlInNewTab(),
+                Tables\Actions\Action::make('Open')
+                    ->link()
+                    ->icon('heroicon-m-folder-open')
+                    ->url(fn(IFile $if) => route('filament.dashboard.resources.i-files.folder', ['record' => $if->id]))
+                    ->visible(fn(IFile $if) => !isset($if->fileable?->url)),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -102,6 +106,7 @@ class IFileResource extends Resource
     {
         return [
             'index' => Pages\ManageIFiles::route('/'),
+            'folder' => Pages\ViewFolder::route('/{record}/folder'),
         ];
     }
 
@@ -118,5 +123,33 @@ class IFileResource extends Resource
     public static function getPluralLabel(): ?string
     {
         return 'Fichiers';
+    }
+
+    protected static function getRootFolderOrCreate(): Folder
+    {
+        $root_ifile = IFile::whereHasMorph('fileable', [Folder::class], function ($query, $type) {
+            if ($type === Folder::class) {
+                $query->where('parent', null);
+            }
+        })->whereCreatedBy(auth()->id())->first();
+
+        $parent = Folder::Where('id', $root_ifile->fileable->getKey())->first();
+
+        // dd($parent);
+
+        if (empty($parent)) {
+            $parent = new Folder();
+            $root_ifile = new IFile([
+                'name' => auth()->id() . '__ROOT__',
+                'created_by' => auth()->id(),
+                'mime_type' => 'application/vnd.garchiv.folder',
+            ]);
+
+            $parent->save();
+
+            $parent->file()->save($root_ifile);
+        }
+
+        return $parent;
     }
 }
