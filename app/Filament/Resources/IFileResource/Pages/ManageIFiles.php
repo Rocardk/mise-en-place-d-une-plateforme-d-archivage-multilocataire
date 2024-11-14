@@ -6,6 +6,7 @@ use App\Filament\Resources\IFileResource;
 use App\Models\File;
 use App\Models\Folder;
 use App\Models\IFile;
+use App\Services\AskYourPDFService;
 use Filament\Actions;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\Pages\ManageRecords;
@@ -90,7 +91,7 @@ class ManageIFiles extends ManageRecords
         if (empty($root_ifile)) {
             $parent = new Folder();
             $root_ifile = new IFile([
-                'name' => auth()->currentCompany()->first()->id . '__ROOT__',
+                'name' => auth()->user()->currentCompany()->first()->id . '__ROOT__',
                 'created_by' => auth()->id(),
                 'mime_type' => 'application/vnd.garchiv.folder',
             ]);
@@ -101,5 +102,12 @@ class ManageIFiles extends ManageRecords
         }
 
         return $root_ifile->fileable;
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            \App\Filament\Resources\IFileResource\Widgets\DocumentChat::class,
+        ];
     }
 }

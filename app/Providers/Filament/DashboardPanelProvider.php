@@ -23,6 +23,7 @@ use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationItem;
 use Illuminate\Support\Facades\Auth;
 use Wallo\FilamentCompanies\Pages\Company\CompanySettings;
+use App\Filament\Pages\Auth\CompanyRegister;
 
 class DashboardPanelProvider extends PanelProvider
 {

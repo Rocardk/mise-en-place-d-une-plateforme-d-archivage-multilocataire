@@ -66,6 +66,7 @@ class IFileResource extends Resource
                     ->label('Propriétaire')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('mime_type')
+                    ->label('Type')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -85,21 +86,21 @@ class IFileResource extends Resource
                     ->icon('heroicon-m-arrow-down-tray')
                     ->url(function (IFile $if): string {
                         return Storage::disk('public')->url('/' . $if->fileable?->url);
-                    })->visible(fn(IFile $if) => isset($if->fileable?->url))
+                    })->visible(fn(IFile $if) => isset ($if->fileable?->url))
                     ->openUrlInNewTab(),
                 Tables\Actions\Action::make('Open')
                     ->link()
                     ->icon('heroicon-m-folder-open')
                     ->url(fn(IFile $if) => route('filament.dashboard.resources.i-files.folder', ['record' => $if->id]))
-                    ->visible(fn(IFile $if) => !isset($if->fileable?->url)),
+                    ->visible(fn(IFile $if) => !isset ($if->fileable?->url)),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
-            ->bulkActions([
+            /* ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]) */ ;
     }
 
     public static function getPages(): array
@@ -140,7 +141,7 @@ class IFileResource extends Resource
         if (empty($root_ifile)) {
             $parent = new Folder();
             $root_ifile = new IFile([
-                'name' => auth()->currentCompany()->first()->id . '__ROOT__',
+                'name' => auth()->user()->currentCompany()->first()->id . '__ROOT__',
                 'created_by' => auth()->id(),
                 'mime_type' => 'application/vnd.garchiv.folder',
             ]);
@@ -151,5 +152,13 @@ class IFileResource extends Resource
         }
 
         return $root_ifile->fileable;
+    }
+
+
+    public static function getWidgets(): array
+    {
+        return [
+            \App\Filament\Resources\IFileResource\Widgets\DocumentChat::class,
+        ];
     }
 }

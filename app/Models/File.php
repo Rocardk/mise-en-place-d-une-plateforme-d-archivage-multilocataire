@@ -15,5 +15,6 @@ class File extends Model
         'size',
         'url',
         'folder',
+        'askyourpdf_id'
     ];
 }

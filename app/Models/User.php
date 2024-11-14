@@ -55,7 +55,13 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
      * @var array<int, string>
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name',
+        'email',
+        'password',
+        'company_id',
+        'role',
+        'askyourpdf_last_api_call',
+        'askyourpdf_calls_number'
     ];
 
     /**

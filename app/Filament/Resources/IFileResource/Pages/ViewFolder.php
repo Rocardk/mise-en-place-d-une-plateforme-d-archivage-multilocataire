@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\IFile;
 use App\Models\File;
 use App\Models\Folder;
+use App\Services\AskYourPDFService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Actions;
@@ -81,21 +82,21 @@ class ViewFolder extends Page implements HasForms, HasTable
                     ->icon('heroicon-m-arrow-down-tray')
                     ->url(function (IFile $if): string {
                         return Storage::disk('public')->url('/' . $if->fileable?->url);
-                    })->visible(fn(IFile $if) => isset($if->fileable?->url))
+                    })->visible(fn(IFile $if) => isset ($if->fileable?->url))
                     ->openUrlInNewTab(),
                 Tables\Actions\Action::make('Open')
                     ->link()
                     ->icon('heroicon-m-folder-open')
                     ->url(fn(IFile $if) => route('filament.dashboard.resources.i-files.folder', ['record' => $if->id]))
-                    ->visible(fn(IFile $if) => !isset($if->fileable?->url)),
+                    ->visible(fn(IFile $if) => !isset ($if->fileable?->url)),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
-            ->bulkActions([
+            /* ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ]) */ ;
     }
 
     public static function getNavigationLabel(): string
@@ -170,6 +171,7 @@ class ViewFolder extends Page implements HasForms, HasTable
 
                     // dd($size, $mimeType/* , $file */);
         
+
                     $ifile = new IFile([
                         ...$data,
                         'created_by' => auth()->id(),

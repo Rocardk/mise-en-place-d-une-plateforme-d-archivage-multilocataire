@@ -5,8 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Wallo\FilamentCompanies\Socialite;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -24,6 +23,8 @@ return new class extends Migration
             $table->foreignId('current_company_id')->nullable();
             $table->foreignId('current_connected_account_id')->nullable();
             $table->string('profile_photo_path')->nullable();
+            $table->date('askyourpdf_last_api_call')->nullable();
+            $table->tinyInteger('askyourpdf_calls_number')->default(0);
             $table->timestamps();
         });
     }

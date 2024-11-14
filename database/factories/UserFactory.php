@@ -52,14 +52,14 @@ class UserFactory extends Factory
      */
     public function withPersonalCompany(): static
     {
-        if (! Features::hasCompanyFeatures()) {
+        if (!Features::hasCompanyFeatures()) {
             return $this->state([]);
         }
 
         return $this->has(
             Company::factory()
                 ->state(function (array $attributes, User $user) {
-                    return ['name' => $user->name.'\'s Company', 'user_id' => $user->id, 'personal_company' => true];
+                    return ['name' => $user->name . '\'s Company', 'user_id' => $user->id, 'personal_company' => true];
                 }),
             'ownedCompanies'
         );
