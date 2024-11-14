@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Model;
 use Wallo\FilamentCompanies\FilamentCompanies;
+use Illuminate\Database\Eloquent\Builder;
 
 class IFile extends Model
 {
@@ -51,5 +52,22 @@ class IFile extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(FilamentCompanies::companyModel());
+    }
+
+    protected static function booted()
+    {
+        static::addGlobalScope('company', function (Builder $builder) {
+            $builder->where('company_id', auth()->user()->currentCompany()->first()->id);
+        });
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Automatically add company_id on creation
+        static::creating(function ($model) {
+            $model->company_id = auth()->user()->currentCompany()->first()->id;
+        });
     }
 }

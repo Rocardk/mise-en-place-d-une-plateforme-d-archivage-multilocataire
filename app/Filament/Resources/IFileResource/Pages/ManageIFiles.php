@@ -59,7 +59,7 @@ class ManageIFiles extends ManageRecords
                     ]);
 
                     // dd($size, $mimeType/* , $file */);
-        
+
                     $ifile = new IFile([
                         ...$data,
                         'created_by' => auth()->id(),
@@ -81,7 +81,7 @@ class ManageIFiles extends ManageRecords
             if ($type === Folder::class) {
                 $query->where('parent', null);
             }
-        })->whereCreatedBy(auth()->id())->first();
+        })->first();//->whereCreatedBy(auth()->id());
 
         // $parent = Folder::Where('id', $root_ifile->fileable->getKey())->first();
 
@@ -90,7 +90,7 @@ class ManageIFiles extends ManageRecords
         if (empty($root_ifile)) {
             $parent = new Folder();
             $root_ifile = new IFile([
-                'name' => auth()->id() . '__ROOT__',
+                'name' => auth()->currentCompany()->first()->id . '__ROOT__',
                 'created_by' => auth()->id(),
                 'mime_type' => 'application/vnd.garchiv.folder',
             ]);

@@ -46,7 +46,7 @@ class FilamentCompaniesServiceProvider extends PanelProvider
             ->default()
             ->login(Login::class)
             ->passwordReset()
-            ->homeUrl(static fn(): string => url(Pages\Dashboard::getUrl(panel: 'company', tenant: Auth::user()?->personalCompany())))
+            ->homeUrl(static fn(): string => url(CompanySettings::getUrl(panel: 'company', tenant: Auth::user()?->personalCompany())))
             ->plugin(
                 FilamentCompanies::make()
                     ->userPanel('dashboard')
@@ -76,9 +76,12 @@ class FilamentCompaniesServiceProvider extends PanelProvider
             ])
             ->userMenuItems([
                 'profile' => MenuItem::make()
-                    ->label('Profile')
                     ->icon('heroicon-o-user-circle')
                     ->url(static fn() => route(Profile::getRouteName(panel: 'admin'))),
+                MenuItem::make()
+                    ->label('Files')
+                    ->icon('heroicon-m-folder')
+                    ->url(static fn() => url(\App\Filament\Resources\IFileResource\Pages\ManageIFiles::getUrl(panel: 'dashboard', tenant: Auth::user()->currentCompany()->first()))),
             ])
             ->authGuard('web')
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')

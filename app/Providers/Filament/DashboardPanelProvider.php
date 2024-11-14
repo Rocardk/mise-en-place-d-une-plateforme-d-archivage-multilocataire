@@ -22,6 +22,7 @@ use Wallo\FilamentCompanies\Pages\User\Profile;
 use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationItem;
 use Illuminate\Support\Facades\Auth;
+use Wallo\FilamentCompanies\Pages\Company\CompanySettings;
 
 class DashboardPanelProvider extends PanelProvider
 {
@@ -45,13 +46,16 @@ class DashboardPanelProvider extends PanelProvider
             ])
             ->userMenuItems([
                 'profile' => MenuItem::make()
-                    ->label('Profile')
                     ->icon('heroicon-o-user-circle')
                     ->url(static fn() => url(Profile::getUrl())),
                 MenuItem::make()
+                    ->label('Files')
+                    ->icon('heroicon-m-folder')
+                    ->url(static fn() => url(\App\Filament\Resources\IFileResource\Pages\ManageIFiles::getUrl(panel: 'dashboard', tenant: Auth::user()->personalCompany()))),
+                MenuItem::make()
                     ->label('Company')
                     ->icon('heroicon-o-building-office')
-                    ->url(static fn() => url(Pages\Dashboard::getUrl(panel: 'company', tenant: Auth::user()->personalCompany()))),
+                    ->url(static fn() => url(CompanySettings::getUrl(panel: 'company', tenant: Auth::user()->currentCompany()->first()))),
             ])
             ->navigationItems([
                 /* NavigationItem::make('Personal Access Tokens')
